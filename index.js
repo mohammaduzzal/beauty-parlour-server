@@ -30,6 +30,7 @@ async function run() {
     // await client.connect();
     const userCollection = client.db('beautyBabe').collection('users');
     const servicesCollection = client.db('beautyBabe').collection('services');
+    const reviewsCollection = client.db('beautyBabe').collection('reviews');
 
 
     // jwt api
@@ -174,6 +175,17 @@ async function run() {
       const id = req.params.id;
       const query = {_id : new ObjectId(id)};
       const result = await servicesCollection.deleteOne(query);
+      res.send(result);
+    })
+
+    // review api ---------------------------
+    app.post('/reviews', async(req,res) =>{
+      const reviews = req.body
+      const result = await reviewsCollection.insertOne(reviews)
+      res.send(result)
+    })
+    app.get('/reviews', async(req,res) =>{
+      const result = await reviewsCollection.find().toArray();
       res.send(result);
     })
 
