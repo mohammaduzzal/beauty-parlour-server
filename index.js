@@ -129,7 +129,7 @@ async function run() {
 
     })
 
-    // services related api
+    // services related api ------------------------------------------------
     app.post('/services', verifyToken, verifyAdmin, async (req, res) => {
       const services = req.body;
       const result = await servicesCollection.insertOne(services)
@@ -142,6 +142,38 @@ async function run() {
     // limited 3 services
     app.get('/services/limited', async (req, res) => {
       const result = await servicesCollection.find().limit(3).toArray();
+      res.send(result);
+    })
+
+    // single service api
+    app.get('/service/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await servicesCollection.findOne(query);
+      res.send(result)
+    })
+    // update a service
+    app.patch('/service/:id', verifyToken, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const updatedService = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          title: updatedService.title,
+          price: updatedService.price,
+          image: updatedService.image,
+          description: updatedService.description,
+        },
+      };
+      const result = await servicesCollection.updateOne(filter,updateDoc)
+      res.send(result)
+
+    })
+    // delete a service 
+    app.delete('/service/:id',verifyToken,verifyAdmin, async(req,res) =>{
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)};
+      const result = await servicesCollection.deleteOne(query);
       res.send(result);
     })
 
