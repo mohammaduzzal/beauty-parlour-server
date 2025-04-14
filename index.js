@@ -31,6 +31,7 @@ async function run() {
     const userCollection = client.db('beautyBabe').collection('users');
     const servicesCollection = client.db('beautyBabe').collection('services');
     const reviewsCollection = client.db('beautyBabe').collection('reviews');
+    const bookedCollection = client.db('beautyBabe').collection('booked');
 
 
     // jwt api
@@ -187,6 +188,41 @@ async function run() {
     app.get('/reviews', async(req,res) =>{
       const result = await reviewsCollection.find().toArray();
       res.send(result);
+    })
+
+    // booking api-------------------------------
+    app.post('/booked', async(req,res) =>{
+      const booked = req.body;
+      const result = await bookedCollection.insertOne(booked)
+      res.send(result)
+    })
+    app.get('/booked', async(req,res) =>{
+      const email = req.query.email;
+      let query = {}
+      if(email){
+         query = {email: email}  // filter by email if provided
+      }
+      try{
+        const result = await bookedCollection.find(query).toArray()
+      res.send(result)
+
+      }catch(error){
+        console.log('error fetching booking', error);
+        res.status(500).send({message:'internal server error'})
+      }
+
+    })
+    app.patch('/booked/:id', async(req,res) =>{
+      const id = req.params.id;
+      const {status} =req.body;
+      const filter = {_id : new ObjectId(id)};
+      const updateDoc={
+        $set:{
+          status
+        }
+      }
+      const result = await bookedCollection.updateOne(filter,updateDoc);
+      res.send(result)
     })
 
 
